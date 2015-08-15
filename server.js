@@ -6,6 +6,6 @@ server.on("request", function(req, res) {
 	res.end('Hello World\n');
 });
 
-var port_number = Number(process.env.PORT || 3000);
+var port_number = Number(process.env.PORT || 5000);
 
 server.listen(port_number);
