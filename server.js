@@ -6,5 +6,6 @@ server.on("request", function(req, res) {
 	res.end('Hello World\n');
 });
 
-server.listen("5000");
-console.log('Server runnimg at http://localhost:5000');
+var port = Number(process.ENV.port || 5000);
+
+server.listen(port);
