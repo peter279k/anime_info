@@ -1,7 +1,14 @@
 {
-  "name": "mynodeapplication",
+  "name": "nodeapps",
   "version": "0.0.1",
   "engines": {
     "node": "0.10.x"
-  }
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "description": "This is my test app",
+  "main": "server.js",
+  "author": "peter279k",
+  "license": "ISC"
 }
