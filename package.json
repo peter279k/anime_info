@@ -1,8 +1,7 @@
 {
-<<<<<<< HEAD
   "name": "anime_info",
   "version": "1.0.0",
-  "description": "This is anime info",
+  "description": "This is the anime info",
   "main": "server.js",
   "dependencies": {
     "cheerio": "^0.19.0",
@@ -11,6 +10,7 @@
   },
   "devDependencies": {},
   "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
   "repository": {
@@ -26,18 +26,4 @@
     "url": "https://github.com/peter279k/anime_info/issues"
   },
   "homepage": "https://github.com/peter279k/anime_info#readme"
-=======
-  "name": "nodeapps",
-  "version": "0.0.1",
-  "engines": {
-    "node": "0.10.x"
-  },
-  "scripts": {
-    "start": "node server.js"
-  },
-  "description": "This is my test app",
-  "main": "server.js",
-  "author": "peter279k",
-  "license": "ISC"
->>>>>>> a13c3b37ea01e9d5ec2c5c0395a7700aee289119
 }
