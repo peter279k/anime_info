@@ -1,0 +1,28 @@
+{
+  "name": "anime_info",
+  "version": "1.0.0",
+  "description": "This is anime info",
+  "main": "server.js",
+  "dependencies": {
+    "cheerio": "^0.19.0",
+    "urlencode": "^1.1.0",
+    "wget": "^0.0.1"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/peter279k/anime_info.git"
+  },
+  "keywords": [
+    "anime"
+  ],
+  "author": "peter279k",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/peter279k/anime_info/issues"
+  },
+  "homepage": "https://github.com/peter279k/anime_info#readme"
+}
