@@ -1,5 +1,4 @@
 var http = require("http");
-<<<<<<< HEAD
 var wget = require('wget');
 var cheerio = require('cheerio');
 var urlencode = require('urlencode');
@@ -9,11 +8,12 @@ var options = {
     path: '/cms/page/name/programme.html',
     method: 'GET'
 };
+var port = process.env.PORT || 3000;
 
 function init_server() {
 	var server = http.createServer(function(request, response) {
 		next(null, response);
-	}).listen(process.env.PORT || 5000);
+	}).listen(port);
 }
 
 //若有遇到亂碼:�，請重新整理(取JSON)
@@ -58,7 +58,6 @@ function parse_html(response, html_str) {
 					href_text = $$(el).attr('href');
 					a_text = $$(el).text();
 					tmp_arr = href_text.split('=');
-					//判斷動畫名稱是否重複
 					anime_name =  urlencode.decode(tmp_arr[1]);
 					json_str.push({"anime_name": anime_name,"team": a_text,"link": href_text});
 				}
@@ -85,15 +84,3 @@ function next(err, res, str) {
 }
 
 next();
-=======
-
-var server = http.createServer();
-server.on("request", function(req, res) {
-	res.writeHead(200, {'Content-type': 'text/plain'});
-	res.end('Hello World\n');
-});
-
-var port_number = Number(process.env.PORT || 5000);
-
-server.listen(port_number);
->>>>>>> a13c3b37ea01e9d5ec2c5c0395a7700aee289119
