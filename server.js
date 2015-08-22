@@ -70,10 +70,12 @@ function parse_html(response, html_str) {
 		}
 	});
 	
-	next(null, response, JSON.stringify(json_str));
+	response.writeHead(200, {'Content-Type': 'application/json; charset=utf-8'});
+	response.end(JSON.stringify(json_str));
 }
 
 function load_template(response, json_str) {
+	response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
 	var json_arr = JSON.parse(json_str);
 	var table_str = "";
 	fs.readFile("templates/index.html", 'utf-8' , function(err, data) {
@@ -90,7 +92,6 @@ function load_template(response, json_str) {
 			table_str += "</tr>";
 		}
 		table_str += "</tbody>";
-		response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
 		response.end(data.toString().replace('%', table_str));
 	});
 }
@@ -106,7 +107,7 @@ function request_url(response, file_path) {
 	});
 }
 
-var tasks = [init_server, get_html, parse_html, load_template];
+var tasks = [init_server, get_html, parse_html];
 function next(err, res, str) {
 	if(err) {
 		throw err;
