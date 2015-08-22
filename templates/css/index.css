@@ -1,0 +1,19 @@
+.disaster-count-table thead th,
+.disaster-count-table tbody tr:last-child {
+    border-bottom: 1px solid #d6d6d6; /* non-RGBA fallback */
+    border-bottom: 1px solid rgba(0,0,0,.1);
+}
+.disaster-count-table tbody th,
+.disaster-count-table tbody td {
+    border-bottom: 1px solid #e6e6e6; /* non-RGBA fallback  */
+    border-bottom: 1px solid rgba(0,0,0,.05);
+}
+.disaster-count-table tbody tr:last-child th,
+.disaster-count-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+.disaster-count-table tbody tr:nth-child(odd) td,
+.disaster-count-table tbody tr:nth-child(odd) th {
+    background-color: #eeeeee; /* non-RGBA fallback  */
+    background-color: rgba(0,0,0,.04);
+}

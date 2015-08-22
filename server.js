@@ -13,7 +13,12 @@ var port = process.env.PORT || 3000;
 
 function init_server() {
 	var server = http.createServer(function(request, response) {
-		next(null, response);
+		if(request.url == '/') {
+			next(null, response);
+		}
+		else {
+			request_url(response, request.url.replace('/',''));
+		}
 	}).listen(port);
 }
 
@@ -87,6 +92,17 @@ function load_template(response, json_str) {
 		table_str += "</tbody>";
 		response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
 		response.end(data.toString().replace('%', table_str));
+	});
+}
+
+function request_url(response, file_path) {
+	response.writeHead(200);
+	fs.readFile(file_path, function(err, data) {
+		if(err)
+			throw err;
+		else {
+			response.end(data, "binary");
+		}
 	});
 }
 
