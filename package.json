@@ -12,7 +12,7 @@
     "wget": "^0.0.1"
   },
   "scripts": {
-    "start": "supervisor server.js"
+    "start": "node server.js"
   },
   "repository": {
     "type": "git",
