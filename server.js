@@ -1,4 +1,5 @@
 var http = require("http");
+var fs = require("fs");
 var wget = require('wget');
 var cheerio = require('cheerio');
 var urlencode = require('urlencode');
@@ -41,7 +42,6 @@ function get_html(response) {
 }
 
 function parse_html(response, html_str) {
-	response.writeHead(200, {'Content-Type': 'application/json; charset=utf-8'});
 	var $ = cheerio.load(html_str);
 	var href_text = "";
 	var a_text = "";
@@ -65,12 +65,32 @@ function parse_html(response, html_str) {
 		}
 	});
 	
-	response.write(JSON.stringify(json_str));
-	response.end();
-	
+	next(null, response, JSON.stringify(json_str));
 }
 
-var tasks = [init_server, get_html, parse_html];
+function load_template(response, json_str) {
+	var json_arr = JSON.parse(json_str);
+	var table_str = "";
+	fs.readFile("templates/index.html", 'utf-8' , function(err, data) {
+		if(err) {
+			throw err;
+		}
+		table_str += "<thead><tr><th>動畫名稱</th><th>字幕組</th><th>動畫連結</th></tr></thead>";
+		table_str += "<tbody>";
+		for(var json_count=0;json_count<json_arr.length;json_count++) {
+			table_str += "<tr>";
+			table_str += "<td>" + json_arr[json_count]["anime_name"] + "</td>";
+			table_str += "<td>" + json_arr[json_count]["team"] + "</td>";
+			table_str += "<td><a target='_blank' href='"+'https://share.dmhy.org/'+json_arr[json_count]["link"]+"'>" + '連結' + "</a></td>";
+			table_str += "</tr>";
+		}
+		table_str += "</tbody>";
+		response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
+		response.end(data.toString().replace('%', table_str));
+	});
+}
+
+var tasks = [init_server, get_html, parse_html, load_template];
 function next(err, res, str) {
 	if(err) {
 		throw err;
