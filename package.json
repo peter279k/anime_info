@@ -1,6 +1,9 @@
 {
   "name": "anime_info",
   "version": "1.0.0",
+   "engines": {
+    "node": "0.10.x"
+  },
   "description": "This is the anime info",
   "main": "server.js",
   "dependencies": {
