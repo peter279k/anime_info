@@ -11,19 +11,26 @@ var options = {
 };
 var port = process.env.PORT || 5000;
 
-function init_server() {
-	var server = http.createServer(function(request, response) {
-		if(request.url == '/') {
-			next(null, response);
-		}
-		else {
-			request_url(response, request.url.replace('/',''));
-		}
-	}).listen(port);
-}
+var server = http.createServer(function(request, response) {
+	if(request.url == '/') {
+		get_html(request,response);
+	}
+	else if(request.url == "/templates/vendor/waves/waves.min.css" || request.url == "/templates/vendor/wow/animate.css"
+		|| request.url == "/templates/css/nativedroid2.css" || request.url == "/templates/css/index.css"
+		|| request.url == "/templates/vendor/waves/waves.min.js" || request.url == "/templates/vendor/wow/wow.min.js"
+		|| request.url == "/templates/js/nativedroid2.js" || request.url == "/templates/js/nd2settings.js"
+		|| request.url == "/templates/css/nativedroid2.color.teal.css" || request.url == "/templates/css/flexboxgrid.min.css"
+		|| request.url == "/templates/css/material-design-iconic-font.min.css") {
+			request_url(response, request.url.replace('/', ''));
+	}
+	else {
+		response.writeHead(404);
+		response.end("not found.");
+	}
+}).listen(port);
 
 //若有遇到亂碼:�，請重新整理(取JSON)
-function get_html(response) {
+function get_html(request, response) {
 	var req = wget.request(options, function(res) {
 		var html_str = "";
 		if(res.statusCode === 200) {
@@ -34,7 +41,7 @@ function get_html(response) {
 				html_str += chunk;
 			});
 			res.on('end', function() {
-				next(null, response, html_str);
+				parse_html(response, html_str);
 			});
 		
 		}
@@ -53,6 +60,7 @@ function parse_html(response, html_str) {
 	var anime_name = "";
 	var tmp_arr = new Array();
 	var json_str = [];
+	var anime_arr = [];
 	$('script').each(function(index, el) {
 		if($(el).text().indexOf('/*******修改開始******/') !== -1) {
 			var $$ = cheerio.load($(el).text());
@@ -64,14 +72,15 @@ function parse_html(response, html_str) {
 					a_text = $$(el).text();
 					tmp_arr = href_text.split('=');
 					anime_name =  urlencode.decode(tmp_arr[1]);
-					json_str.push({"anime_name": anime_name,"team": a_text,"link": href_text});
+					anime_arr = anime_name.split('+');
+					anime_arr.pop();
+					json_str.push({"anime_name": anime_arr.toString().replace(',', '+'),"team": a_text,"link": href_text});
 				}
 			});
+			
+			load_template(response, JSON.stringify(json_str));
 		}
 	});
-	
-	response.writeHead(200, {'Content-Type': 'application/json; charset=utf-8'});
-	response.end(JSON.stringify(json_str));
 }
 
 function load_template(response, json_str) {
@@ -106,18 +115,3 @@ function request_url(response, file_path) {
 		}
 	});
 }
-
-var tasks = [init_server, get_html, parse_html];
-function next(err, res, str) {
-	if(err) {
-		throw err;
-	}
-	else {
-		var current_task = tasks.shift();
-		if(current_task) {
-			current_task(res, str);
-		}
-	}
-}
-
-next();
