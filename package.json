@@ -23,5 +23,6 @@
   "bugs": {
     "url": "https://github.com/peter279k/anime_info/issues"
   },
-  "homepage": "https://github.com/peter279k/anime_info#readme"
+  "homepage": "https://github.com/peter279k/anime_info#readme",
+  "devDependencies": {}
 }
