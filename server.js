@@ -3,6 +3,7 @@ var fs = require("fs");
 var wget = require('wget');
 var cheerio = require('cheerio');
 var urlencode = require('urlencode');
+var url = require('url');
 var options = {
     protocol: 'https',
     host: 'share.dmhy.org',
@@ -10,24 +11,20 @@ var options = {
     method: 'GET'
 };
 var port = process.env.PORT || 5000;
+var get_method = "";
 
 var server = http.createServer(function(request, response) {
-	if(request.url == '/') {
+	get_method = url.parse(request.url, true);
+	if(request.url == '/' || get_method.query.action == "every_week") {
 		get_html(request,response);
 	}
-	else if(request.url == "/templates/vendor/waves/waves.min.css" || request.url == "/templates/vendor/wow/animate.css"
-		|| request.url == "/templates/css/nativedroid2.css" || request.url == "/templates/css/index.css"
-		|| request.url == "/templates/vendor/waves/waves.min.js" || request.url == "/templates/vendor/wow/wow.min.js"
-		|| request.url == "/templates/js/nativedroid2.js" || request.url == "/templates/js/nd2settings.js"
-		|| request.url == "/templates/css/nativedroid2.color.teal.css" || request.url == "/templates/css/flexboxgrid.min.css"
-		|| request.url == "/templates/css/material-design-iconic-font.min.css") {
-			request_url(response, request.url.replace('/', ''));
+	if(get_method.query.action == "over_week") {
+		options.path = "/json/index.json";
+		get_html(request,response);
 	}
-	else {
-		response.writeHead(404);
-		response.end("not found.");
-	}
-}).listen(port);
+	
+	request_url(response, __dirname + request.url);
+}).listen(port); 
 
 //若有遇到亂碼:�，請重新整理(取JSON)
 function get_html(request, response) {
@@ -106,11 +103,14 @@ function load_template(response, json_str) {
 }
 
 function request_url(response, file_path) {
-	response.writeHead(200);
 	fs.readFile(file_path, function(err, data) {
-		if(err)
-			throw err;
+		if(err) {
+			response.writeHead(404);
+			response.end("File not found.");
+			return;
+		}
 		else {
+			response.writeHead(200);
 			response.end(data, "binary");
 		}
 	});

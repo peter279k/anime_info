@@ -27,10 +27,21 @@
 			<div data-role="header" data-position="fixed" class="wow fadeInDown" data-wow-delay="0.2s">
 				<h1 class="wow fadeIn" data-wow-delay='0.4s'>動畫資訊</h1>
 			</div>
-			<div role="main" class="ui-content" data-inset="false">
-				<span class="nd2-title">資料來源:<a href="https://share.dmhy.org/cms/page/name/programme.html">動漫花園</a></span>
-				<h2>若遇到亂碼，請重新整理取得最新資料</h2>
-				<h3>每周番組</h3>
+			<div role="main" class="ui-content wow fadeIn" data-wow-delay="0.2s"  data-inset="false">
+				<div class="row">
+					<div class="col-xs-12 col-md-6 col-md-3">
+						<div class="box">
+							<span class="nd2-title">資料來源:<a href="https://share.dmhy.org/cms/page/name/programme.html" target="_blank">動漫花園</a></span>
+							<h2>若遇到亂碼，請重新整理取得最新資料</h2>
+						</div>
+					</div>
+					<div class="col-xs-12 col-md-6 col-md-3">
+						<div class="box">
+							<a href="/?action=every_week" class="ui-btn clr-primary">每周番組</a>
+							<a href="/?action=over_week" class="ui-btn ui-btn-raised clr-primary">完結番組</a>
+						</div>
+					</div>
+				</div>
 				<form>
 					<input id="filter-input-placeholder" data-type="search" placeholder="ex: 請輸入動畫,字幕名稱等">
 				</form>
