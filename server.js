@@ -18,12 +18,12 @@ var server = http.createServer(function(request, response) {
 	if(request.url == '/' || get_method.query.action == "every_week") {
 		get_html(request,response);
 	}
-	if(get_method.query.action == "over_week") {
+	else if(get_method.query.action == "over_week") {
 		options.path = "/json/index.json";
 		get_html(request,response);
 	}
-	
-	request_url(response, __dirname + request.url);
+	else
+		request_url(response, __dirname + request.url);
 }).listen(port); 
 
 //若有遇到亂碼:�，請重新整理(取JSON)
