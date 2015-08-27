@@ -111,6 +111,7 @@ function parse_html(response, html_str, type, table_name) {
 
 function write_cache(json_arr, table_name) {
 	sqlite_handler.serialize(function() {
+		sqlite_handler.run("DELETE FROM " + table_name);
 		var stmt = sqlite_handler.prepare("INSERT INTO " + table_name + "(create_time,anime_name,team,link) VALUES($create_time,$anime_name,$team,$link)");
 		for(var count=0;count<json_arr.length;count++) {
 			stmt.run({
