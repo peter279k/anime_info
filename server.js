@@ -4,6 +4,8 @@ var wget = require('wget');
 var cheerio = require('cheerio');
 var urlencode = require('urlencode');
 var url = require('url');
+var sqlite3 = require('sqlite3').verbose();
+var sqlite_handler = new sqlite3.Database('./cache/my.db.sqlite');
 var options = {
     protocol: 'https',
     host: 'share.dmhy.org',
@@ -16,57 +18,44 @@ var get_method = "";
 var server = http.createServer(function(request, response) {
 	get_method = url.parse(request.url, true);
 	if(request.url == '/' || get_method.query.action == "every_week") {
-		detect_cache(response);
+		detect_cache(response, "every_week");
 	}
 	else if(get_method.query.action == "over_week") {
 		options.path = "/json/index.json";
-		detect_cache(response);
+		detect_cache(response, "over_week");
 	}
 	else
 		request_url(response, __dirname + request.url);
 }).listen(port); 
 
-function detect_cache(response) {
-	var file_name = null;
-	fs.readdir("./cache", function(err, files) {
-		if(err)
-			console.log(err);
-		else if(files.length == 0) {
-			get_cache(response, "create_new");
-		}
-		else {
-			file_name = files[0].split('.');
-			if(Math.round(new Date().getTime() - parseInt(file_name[0]))/1000/60/60 >= 24)
-				get_cache(response, "cache_expired");
+function detect_cache(response, type) {
+	sqlite_handler.serialize(function() {
+		sqlite_handler.all("SELECT * FROM " + type, function(err, rows) {
+			if(err)
+				console.log(err);
+			else if(rows.length <= 0)
+				get_cache(response, "create_new", null, type);
+			else if(((new Date().getTime() - rows[0]["create_time"])/1000/60/60) >= 24)
+				get_cache(response, "cache_expired", null, type);
 			else
-				get_cache(response, parseInt(file_name[0]));
-		}
+				get_cache(response, "cache_lived", rows, null);
+		});
 	});
 }
 
-function get_cache(response, type) {
+function get_cache(response, type, rows, table_name) {
 	switch(type) {
 		case "create_new":
 		case "cache_expired":
-			get_html(response, type);
+			get_html(response, type, table_name);
 			break;
 		default:
-			read_cache(response, type);
+			load_template(response, rows);
 	}
 }
 
-function read_cache(response, type) {
-	fs.readFile("./cache/" + type + ".json", function(err, data) {
-		if(err)
-			console.log(err);
-		else {
-			load_template(response, data);
-		}
-	});
-}
-
 //若有遇到亂碼:�，請重新整理(取JSON)
-function get_html(response, type) {
+function get_html(response, type, table_name) {
 	var req = wget.request(options, function(res) {
 		var html_str = "";
 		if(res.statusCode === 200) {
@@ -77,7 +66,7 @@ function get_html(response, type) {
 				html_str += chunk;
 			});
 			res.on('end', function() {
-				parse_html(response, html_str, type);
+				parse_html(response, html_str, type, table_name);
 			});
 		
 		}
@@ -89,7 +78,7 @@ function get_html(response, type) {
 	});
 }
 
-function parse_html(response, html_str, type) {
+function parse_html(response, html_str, type, table_name) {
 	var $ = cheerio.load(html_str);
 	var href_text = "";
 	var a_text = "";
@@ -114,24 +103,32 @@ function parse_html(response, html_str, type) {
 				}
 			});
 			
-			write_cache(response, JSON.stringify(json_str));
-			//load_template(response, JSON.stringify(json_str));
+			write_cache(json_str, table_name);
+			load_template(response, json_str);
 		}
 	});
 }
 
-function write_cache(response, json_str) {
-	fs.writeFile("./cache/" + new Date().getTime() + ".json", json_str, function(err) {
-		if(err)
-			console.log(err);
-		else
-			load_template(response, json_str);
+function write_cache(json_arr, table_name) {
+	sqlite_handler.serialize(function() {
+		var stmt = sqlite_handler.prepare("INSERT INTO " + table_name + "(create_time,anime_name,team,link) VALUES($create_time,$anime_name,$team,$link)");
+		for(var count=0;count<json_arr.length;count++) {
+			stmt.run({
+				$create_time: new Date().getTime(),
+				$anime_name: json_arr[count]["anime_name"],
+				$team: json_arr[count]["team"],
+				$link: json_arr[count]["link"]
+			});
+		}
+		
+		stmt.finalize();
 	});
+	
+	sqlite_handler.close();
 }
 
-function load_template(response, json_str) {
+function load_template(response, json_arr) {
 	response.writeHead(200, {'Content-Type': 'text/html; charset=utf-8'});
-	var json_arr = JSON.parse(json_str);
 	var table_str = "";
 	fs.readFile("templates/index.html", 'utf-8' , function(err, data) {
 		if(err) {
