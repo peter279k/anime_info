@@ -16,18 +16,57 @@ var get_method = "";
 var server = http.createServer(function(request, response) {
 	get_method = url.parse(request.url, true);
 	if(request.url == '/' || get_method.query.action == "every_week") {
-		get_html(request,response);
+		detect_cache(response);
 	}
 	else if(get_method.query.action == "over_week") {
 		options.path = "/json/index.json";
-		get_html(request,response);
+		detect_cache(response);
 	}
 	else
 		request_url(response, __dirname + request.url);
 }).listen(port); 
 
+function detect_cache(response) {
+	var file_name = null;
+	fs.readdir("./cache", function(err, files) {
+		if(err)
+			console.log(err);
+		else if(files.length == 0) {
+			get_cache(response, "create_new");
+		}
+		else {
+			file_name = files[0].split('.');
+			if(Math.round(new Date().getTime() - parseInt(file_name[0]))/1000/60/60 >= 24)
+				get_cache(response, "cache_expired");
+			else
+				get_cache(response, parseInt(file_name[0]));
+		}
+	});
+}
+
+function get_cache(response, type) {
+	switch(type) {
+		case "create_new":
+		case "cache_expired":
+			get_html(response, type);
+			break;
+		default:
+			read_cache(response, type);
+	}
+}
+
+function read_cache(response, type) {
+	fs.readFile("./cache/" + type + ".json", function(err, data) {
+		if(err)
+			console.log(err);
+		else {
+			load_template(response, data);
+		}
+	});
+}
+
 //若有遇到亂碼:�，請重新整理(取JSON)
-function get_html(request, response) {
+function get_html(response, type) {
 	var req = wget.request(options, function(res) {
 		var html_str = "";
 		if(res.statusCode === 200) {
@@ -38,7 +77,7 @@ function get_html(request, response) {
 				html_str += chunk;
 			});
 			res.on('end', function() {
-				parse_html(response, html_str);
+				parse_html(response, html_str, type);
 			});
 		
 		}
@@ -50,7 +89,7 @@ function get_html(request, response) {
 	});
 }
 
-function parse_html(response, html_str) {
+function parse_html(response, html_str, type) {
 	var $ = cheerio.load(html_str);
 	var href_text = "";
 	var a_text = "";
@@ -75,8 +114,18 @@ function parse_html(response, html_str) {
 				}
 			});
 			
-			load_template(response, JSON.stringify(json_str));
+			write_cache(response, JSON.stringify(json_str));
+			//load_template(response, JSON.stringify(json_str));
 		}
+	});
+}
+
+function write_cache(response, json_str) {
+	fs.writeFile("./cache/" + new Date().getTime() + ".json", json_str, function(err) {
+		if(err)
+			console.log(err);
+		else
+			load_template(response, json_str);
 	});
 }
 
