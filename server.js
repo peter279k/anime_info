@@ -12,7 +12,11 @@ var options = {
     path: '/cms/page/name/programme.html',
     method: 'GET'
 };
-var port = process.env.PORT || 5000;
+
+//for Heroku
+//var port = process.env.PORT || 5000;
+//for vps
+var port = 5000;
 var get_method = "";
 
 var server = http.createServer(function(request, response) {
