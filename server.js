@@ -22,11 +22,11 @@ var get_method = "";
 var server = http.createServer(function(request, response) {
 	get_method = url.parse(request.url, true);
 	if(request.url == '/' || get_method.query.action == "every_week") {
-		detect_cache(response, "every_week");
+		//detect_cache(response, "every_week");
 	}
 	else if(get_method.query.action == "over_week") {
 		options.path = "/json/index.json";
-		detect_cache(response, "over_week");
+		//detect_cache(response, "over_week");
 	}
 	else
 		request_url(response, __dirname + request.url);
@@ -107,7 +107,7 @@ function parse_html(response, html_str, type, table_name) {
 				}
 			});
 			
-			write_cache(json_str, table_name);
+			//write_cache(json_str, table_name);
 			load_template(response, json_str);
 		}
 	});
